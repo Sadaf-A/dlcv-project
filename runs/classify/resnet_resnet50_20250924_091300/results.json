@@ -1,0 +1,15 @@
+{
+  "model": "resnet50",
+  "num_classes": 2,
+  "epochs": 5,
+  "best_accuracy": 98.01980198019803,
+  "total_time": 93.9670479297638,
+  "device": "mps",
+  "explainable_ai": true,
+  "final_results": {
+    "train_loss": 0.08338291382163086,
+    "train_acc": 98.51190476190476,
+    "val_loss": 0.3636398564558476,
+    "val_acc": 98.01980198019803
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "model": "Faster R-CNN (resnet50)",
+  "num_classes": 3,
+  "epochs": 10,
+  "best_loss": Infinity,
+  "total_time": 300.71949911117554,
+  "device": "cpu",
+  "xai_enabled": true,
+  "final_results": {
+    "train_loss": NaN,
+    "val_loss": 0
+  }
+}
