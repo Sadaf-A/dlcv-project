@@ -3,6 +3,8 @@
 > Deep Learning-powered retail shelf monitoring system with Explainable AI for planogram compliance checking and inventory management.
 
 ![ShelfCheck AI Demo](https://img.shields.io/badge/Status-Production%20Ready-green) ![Python](https://img.shields.io/badge/Python-3.8+-blue) ![License](https://img.shields.io/badge/License-MIT-yellow)
+## Dataset Link 
+https://drive.google.com/file/d/1p3iDn5jatNN_PKyxYIljCLeLI3wgUs_V/view?usp=sharing
 
 ## 🎯 Overview
 
