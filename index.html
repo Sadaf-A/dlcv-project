@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShelfCheck AI - Complete Implementation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .team-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .team-member {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .model-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .model-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .model-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .model-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 15px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-disconnected {
+            background: #dc3545;
+        }
+
+        .status-loading {
+            background: #ffc107;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .results-section {
+            grid-column: span 3;
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .detection-results {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .detected-object {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .object-info {
+            flex: 1;
+        }
+
+        .object-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .object-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .confidence-bar {
+            width: 80px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-left: 15px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .comparison-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .change-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #dc3545;
+        }
+
+        .change-item.added {
+            border-left-color: #28a745;
+        }
+
+        .change-item.moved {
+            border-left-color: #ffc107;
+        }
+
+        .change-item.removed {
+            border-left-color: #dc3545;
+        }
+
+        .report-content {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+            white-space: pre-line;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .benchmark-section {
+            background: #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .model-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .model-performance {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .model-performance h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .performance-metric {
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .logs {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+
+        .log-info { color: #63b3ed; }
+        .log-success { color: #68d391; }
+        .log-warning { color: #fbd38d; }
+        .log-error { color: #feb2b2; }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid, .results-grid, .model-comparison {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid, .results-grid, .model-comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .team-info {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 ShelfCheck AI</h1>
+            <p>Retail Shelf Product Checker & Planogram Compliance using Deep Learning</p>
+            <p style="font-size: 1em; color: #888;">Complete Implementation with R-CNN, YOLOv8, and ResNet</p>
+            <div class="team-info">
+                <div class="team-member">Avirup - Web Interface & LLM Integration</div>
+                <div class="team-member">Lakshay - Planogram Logic & Database</div>
+                <div class="team-member">Sadaf - Object Detection Models</div>
+            </div>
+        </div>
+
+        <!-- Backend Status -->
+        <div class="section" style="grid-column: span 3; margin-bottom: 20px;">
+            <h2>🔗 Backend Connection Status</h2>
+            <div id="connectionStatus">
+                <span class="status-indicator status-loading"></span>
+                Checking backend connection...
+            </div>
+            <div id="modelStatus" style="margin-top: 15px;"></div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Image Upload Section -->
+            <div class="section">
+                <h2>📸 Before Image</h2>
+                <div class="upload-area" id="beforeUploadArea">
+                    <div class="upload-icon">📷</div>
+                    <p>Upload BEFORE shelf image</p>
+                    <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                        JPG, PNG formats supported
+                    </p>
+                </div>
+                <input type="file" id="beforeFileInput" class="file-input" accept="image/*">
+                <div id="beforePreview"></div>
+            </div>
+
+            <div class="section">
+                <h2>📸 After Image</h2>
+                <div class="upload-area" id="afterUploadArea">
+                    <div class="upload-icon">📷</div>
+                    <p>Upload AFTER shelf image</p>
+                    <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                        JPG, PNG formats supported
+                    </p>
+                </div>
+                <input type="file" id="afterFileInput" class="file-input" accept="image/*">
+                <div id="afterPreview"></div>
+            </div>
+
+            <!-- Model Selection & Analysis -->
+            <div class="section">
+                <h2>🧠 Model Selection</h2>
+                <p style="margin-bottom: 15px; color: #666;">Choose detection model:</p>
+                
+                <div class="model-selector">
+                    <button class="model-btn active" data-model="yolo">
+                        YOLOv8<br><small>Real-time</small>
+                    </button>
+                    <button class="model-btn" data-model="rcnn">
+                        R-CNN<br><small>High accuracy</small>
+                    </button>
+                    <button class="model-btn" data-model="resnet">
+                        ResNet<br><small>Feature extraction</small>
+                    </button>
+                </div>
+
+                <div class="progress-bar" id="progressBar" style="display: none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <button class="btn" id="analyzeBtn" disabled>
+                    🔍 Analyze Shelf Changes
+                </button>
+                
+                <button class="btn secondary" id="benchmarkBtn" disabled>
+                    📊 Benchmark Models
+                </button>
+                
+                <button class="btn danger" id="clearBtn">
+                    🗑️ Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section results-section" id="resultsSection">
+            <h2>📊 Analysis Results</h2>
+            
+            <!-- Summary Metrics -->
+            <div class="metrics-grid" id="summaryMetrics">
+                <!-- Metrics will be populated here -->
+            </div>
+            
+            <div class="results-grid">
+                <!-- Before Analysis -->
+                <div>
+                    <h3>📋 Before Analysis</h3>
+                    <div id="beforeMetrics" class="metrics-grid">
+                        <!-- Before metrics -->
+                    </div>
+                    <div class="detection-results" id="beforeDetections">
+                        <h4>Detected Objects:</h4>
+                        <div id="beforeObjectsList"></div>
+                    </div>
+                </div>
+
+                <!-- After Analysis -->
+                <div>
+                    <h3>📋 After Analysis</h3>
+                    <div id="afterMetrics" class="metrics-grid">
+                        <!-- After metrics -->
+                    </div>
+                    <div class="detection-results" id="afterDetections">
+                        <h4>Detected Objects:</h4>
+                        <div id="afterObjectsList"></div>
+                    </div>
+                </div>
+
+                <!-- Changes -->
+                <div>
+                    <h3>🔄 Changes Detected</h3>
+                    <div class="comparison-section" id="changesSection">
+                        <!-- Changes will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance Report -->
+            <div style="grid-column: span 3;">
+                <h3>📝 Compliance Report</h3>
+                <div class="report-content" id="complianceReport">
+                    No analysis performed yet. Upload images and click "Analyze Shelf Changes" to generate report.
+                </div>
+            </div>
+        </div>
+
+        <!-- Benchmark Results Section -->
+        <div class="section" id="benchmarkSection" style="display: none; grid-column: span 3;">
+            <h2>⚡ Model Performance Benchmark</h2>
+            <div class="benchmark-section">
+                <div class="model-comparison" id="modelComparison">
+                    <!-- Benchmark results will be populated here -->
+                </div>
+                <div id="benchmarkSummary" class="report-content">
+                    <!-- Benchmark summary -->
+                </div>
+            </div>
+        </div>
+
+        <!-- System Logs -->
+        <div class="section" style="grid-column: span 3;">
+            <h2>📜 System Logs</h2>
+            <div class="logs" id="systemLogs">
+                <div class="log-entry log-info">[System] ShelfCheck AI Frontend initialized</div>
+                <div class="log-entry log-info">[System] Checking backend connection...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ShelfCheckAI_Frontend {
+            constructor() {
+                this.backendUrl = 'http://localhost:5001';
+                this.selectedModel = 'yolo';
+                this.beforeImage = null;
+                this.afterImage = null;
+                this.isAnalyzing = false;
+                
+                this.initializeEventListeners();
+                this.checkBackendConnection();
+            }
+
+            log(message, type = 'info') {
+                const logs = document.getElementById('systemLogs');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry log-${type}`;
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                logs.appendChild(logEntry);
+                logs.scrollTop = logs.scrollHeight;
+                console.log(`[ShelfCheck AI] ${message}`);
+            }
+
+            initializeEventListeners() {
+                // File upload handlers
+                this.setupFileUpload('before');
+                this.setupFileUpload('after');
+
+                // Model selection
+                document.querySelectorAll('.model-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.selectedModel = e.target.dataset.model;
+                        this.log(`Selected model: ${this.selectedModel.toUpperCase()}`, 'info');
+                    });
+                });
+
+                // Action buttons
+                document.getElementById('analyzeBtn').addEventListener('click', () => this.analyzeImages());
+                document.getElementById('benchmarkBtn').addEventListener('click', () => this.benchmarkModels());
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearAll());
+            }
+
+            setupFileUpload(type) {
+                const uploadArea = document.getElementById(`${type}UploadArea`);
+                const fileInput = document.getElementById(`${type}FileInput`);
+
+                uploadArea.addEventListener('click', () => fileInput.click());
+                
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.classList.remove('dragover');
+                });
+                
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.handleImageUpload(files[0], type);
+                    }
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        this.handleImageUpload(e.target.files[0], type);
+                    }
+                });
+            }
+
+            handleImageUpload(file, type) {
+                if (!file.type.startsWith('image/')) {
+                    this.showAlert('Please upload a valid image file', 'error');
+                    return;
+                }
+
+                this.log(`Uploading ${type} image: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`, 'info');
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        if (type === 'before') {
+                            this.beforeImage = e.target.result;
+                        } else {
+                            this.afterImage = e.target.result;
+                        }
+                        this.displayImagePreview(img, type);
+                        this.updateAnalyzeButton();
+                        this.log(`${type} image loaded successfully`, 'success');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            displayImagePreview(img, type) {
+                const preview = document.getElementById(`${type}Preview`);
+                preview.innerHTML = '';
+                
+                const imgElement = img.cloneNode();
+                imgElement.className = 'image-preview';
+                imgElement.style.maxWidth = '100%';
+                imgElement.style.maxHeight = '200px';
+                
+                preview.appendChild(imgElement);
+            }
+
+            updateAnalyzeButton() {
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                const benchmarkBtn = document.getElementById('benchmarkBtn');
+                
+                if (this.beforeImage && this.afterImage) {
+                    analyzeBtn.disabled = false;
+                }
+                
+                if (this.beforeImage || this.afterImage) {
+                    benchmarkBtn.disabled = false;
+                }
+            }
+
+            async checkBackendConnection() {
+                try {
+                    const response = await fetch(`${this.backendUrl}/model_status`);
+                    const data = await response.json();
+                    
+                    document.getElementById('connectionStatus').innerHTML = `
+                        <span class="status-indicator status-connected"></span>
+                        Backend connected successfully
+                    `;
+                    
+                    document.getElementById('modelStatus').innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Models Status:</strong><br>
+                            R-CNN: ${data.rcnn_loaded ? '✅ Loaded' : '❌ Not loaded'}<br>
+                            YOLOv8: ${data.yolo_loaded ? '✅ Loaded' : '❌ Not loaded'}<br>
+                            ResNet: ${data.resnet_loaded ? '✅ Loaded' : '❌ Not loaded'}<br>
+                            Device: ${data.device}
+                        </div>
+                    `;
+                    
+                    this.log('Backend connection established', 'success');
+                    this.log(`Models available: ${data.models_available.join(', ')}`, 'info');
+                    
+                } catch (error) {
+                    document.getElementById('connectionStatus').innerHTML = `
+                        <span class="status-indicator status-disconnected"></span>
+                        Backend connection failed
+                    `;
+                    
+                    document.getElementById('modelStatus').innerHTML = `
+                        <div class="alert alert-error">
+                            <strong>Connection Error:</strong> Could not connect to backend server.<br>
+                            Please ensure the Python backend is running on localhost:5001
+                        </div>
+                    `;
+                    
+                    this.log(`Backend connection failed: ${error.message}`, 'error');
+                }
+            }
+
+            async analyzeImages() {
+                if (!this.beforeImage || !this.afterImage) {
+                    this.showAlert('Please upload both before and after images', 'warning');
+                    return;
+                }
+
+                if (this.isAnalyzing) return;
+                this.isAnalyzing = true;
+
+                this.log(`Starting analysis with ${this.selectedModel.toUpperCase()} model...`, 'info');
+                this.showProgress(true);
+
+                try {
+                    const response = await fetch(`${this.backendUrl}/analyze_complete`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            before_image: this.beforeImage,
+                            after_image: this.afterImage,
+                            model_choice: this.selectedModel
+                        })
+                    });
+
+                    const results = await response.json();
+                    
+                    if (results.error) {
+                        throw new Error(results.error);
+                    }
+
+                    this.displayAnalysisResults(results);
+                    this.log('Analysis completed successfully', 'success');
+
+                } catch (error) {
+                    this.log(`Analysis failed: ${error.message}`, 'error');
+                    this.showAlert(`Analysis failed: ${error.message}`, 'error');
+                } finally {
+                    this.isAnalyzing = false;
+                    this.showProgress(false);
+                }
+            }
+
+            async benchmarkModels() {
+                if (!this.beforeImage && !this.afterImage) {
+                    this.showAlert('Please upload at least one image for benchmarking', 'warning');
+                    return;
+                }
+
+                this.log('Starting model benchmarking...', 'info');
+                this.showProgress(true, 'Benchmarking models...');
+
+                try {
+                    const testImage = this.beforeImage || this.afterImage;
+                    
+                    const response = await fetch(`${this.backendUrl}/benchmark_models`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            test_image: testImage
+                        })
+                    });
+
+                    const results = await response.json();
+                    
+                    if (results.error) {
+                        throw new Error(results.error);
+                    }
+
+                    this.displayBenchmarkResults(results);
+                    this.log('Model benchmarking completed', 'success');
+
+                } catch (error) {
+                    this.log(`Benchmarking failed: ${error.message}`, 'error');
+                    this.showAlert(`Benchmarking failed: ${error.message}`, 'error');
+                } finally {
+                    this.showProgress(false);
+                }
+            }
+
+            displayAnalysisResults(results) {
+                // Show results section
+                document.getElementById('resultsSection').style.display = 'block';
+
+                // Summary metrics
+                const summaryMetrics = document.getElementById('summaryMetrics');
+                summaryMetrics.innerHTML = `
+                    <div class="metric-card">
+                        <div class="metric-value">${results.model_used}</div>
+                        <div class="metric-label">Model Used</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${results.comparison.added_objects.length + results.comparison.removed_objects.length + results.comparison.moved_objects.length}</div>
+                        <div class="metric-label">Total Changes</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${results.compliance_report.compliance_score}%</div>
+                        <div class="metric-label">Compliance Score</div>
+                    </div>
+                `;
+
+                // Before analysis
+                this.displayDetectionResults(results.before_analysis, 'before');
+                
+                // After analysis
+                this.displayDetectionResults(results.after_analysis, 'after');
+
+                // Changes
+                this.displayChanges(results.comparison);
+
+                // Compliance report
+                document.getElementById('complianceReport').textContent = results.human_readable_report || 'Report generation in progress...';
+            }
+
+            displayDetectionResults(analysis, type) {
+                const metricsContainer = document.getElementById(`${type}Metrics`);
+                metricsContainer.innerHTML = `
+                    <div class="metric-card" style="grid-column: span 2;">
+                        <div class="metric-value">${analysis.object_count}</div>
+                        <div class="metric-label">Objects Detected</div>
+                    </div>
+                    <div class="metric-card" style="grid-column: span 2;">
+                        <div class="metric-value">${(analysis.avg_confidence * 100).toFixed(1)}%</div>
+                        <div class="metric-label">Avg Confidence</div>
+                    </div>
+                `;
+
+                const objectsList = document.getElementById(`${type}ObjectsList`);
+                objectsList.innerHTML = '';
+
+                analysis.detections.forEach((detection, index) => {
+                    const objectElement = document.createElement('div');
+                    objectElement.className = 'detected-object';
+                    objectElement.innerHTML = `
+                        <div class="object-info">
+                            <div class="object-name">${detection.class_name || 'Product'}</div>
+                            <div class="object-details">
+                                Confidence: ${(detection.confidence * 100).toFixed(1)}% | 
+                                BBox: [${detection.bbox.map(b => Math.round(b)).join(', ')}]
+                            </div>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${detection.confidence * 100}%"></div>
+                        </div>
+                    `;
+                    objectsList.appendChild(objectElement);
+                });
+            }
+
+            displayChanges(comparison) {
+                const changesSection = document.getElementById('changesSection');
+                changesSection.innerHTML = '<h4>Change Summary:</h4>';
+
+                // Added objects
+                if (comparison.added_objects.length > 0) {
+                    comparison.added_objects.forEach(obj => {
+                        const changeElement = document.createElement('div');
+                        changeElement.className = 'change-item added';
+                        changeElement.innerHTML = `
+                            <strong>➕ Added:</strong> ${obj.class_name || 'Product'} 
+                            (Confidence: ${(obj.confidence * 100).toFixed(1)}%)
+                        `;
+                        changesSection.appendChild(changeElement);
+                    });
+                }
+
+                // Removed objects
+                if (comparison.removed_objects.length > 0) {
+                    comparison.removed_objects.forEach(obj => {
+                        const changeElement = document.createElement('div');
+                        changeElement.className = 'change-item removed';
+                        changeElement.innerHTML = `
+                            <strong>➖ Removed:</strong> ${obj.class_name || 'Product'} 
+                            (Was at: [${obj.bbox.map(b => Math.round(b)).join(', ')}])
+                        `;
+                        changesSection.appendChild(changeElement);
+                    });
+                }
+
+                // Moved objects
+                if (comparison.moved_objects.length > 0) {
+                    comparison.moved_objects.forEach(obj => {
+                        const changeElement = document.createElement('div');
+                        changeElement.className = 'change-item moved';
+                        changeElement.innerHTML = `
+                            <strong>🔄 Moved:</strong> ${obj.before.class_name || 'Product'} 
+                            (Distance: ${obj.distance.toFixed(1)}px)
+                        `;
+                        changesSection.appendChild(changeElement);
+                    });
+                }
+
+                if (comparison.added_objects.length === 0 && 
+                    comparison.removed_objects.length === 0 && 
+                    comparison.moved_objects.length === 0) {
+                    const noChanges = document.createElement('div');
+                    noChanges.className = 'change-item';
+                    noChanges.style.borderLeftColor = '#28a745';
+                    noChanges.innerHTML = '<strong>✅ No significant changes detected</strong>';
+                    changesSection.appendChild(noChanges);
+                }
+            }
+
+            displayBenchmarkResults(results) {
+                document.getElementById('benchmarkSection').style.display = 'block';
+                
+                const modelComparison = document.getElementById('modelComparison');
+                modelComparison.innerHTML = '';
+
+                Object.entries(results.benchmark_results).forEach(([modelName, data]) => {
+                    const modelCard = document.createElement('div');
+                    modelCard.className = 'model-performance';
+                    modelCard.innerHTML = `
+                        <h4>${modelName.toUpperCase()}</h4>
+                        <div class="performance-metric">
+                            <strong>Type:</strong> ${data.model_type}
+                        </div>
+                        <div class="performance-metric">
+                            <strong>Inference Time:</strong> ${data.inference_time.toFixed(3)}s
+                        </div>
+                        <div class="performance-metric">
+                            <strong>Detections:</strong> ${data.detections.length}
+                        </div>
+                        <div class="performance-metric">
+                            <strong>Avg Confidence:</strong> ${data.detections.length > 0 ? 
+                                (data.detections.reduce((sum, d) => sum + d.confidence, 0) / data.detections.length * 100).toFixed(1) + '%' : 'N/A'}
+                        </div>
+                    `;
+                    modelComparison.appendChild(modelCard);
+                });
+
+                document.getElementById('benchmarkSummary').textContent = results.analysis.comparison_summary;
+            }
+
+            showProgress(show, message = 'Processing...') {
+                const progressBar = document.getElementById('progressBar');
+                const progressFill = document.getElementById('progressFill');
+                
+                if (show) {
+                    progressBar.style.display = 'block';
+                    let width = 0;
+                    const interval = setInterval(() => {
+                        width += Math.random() * 10;
+                        if (width >= 95) {
+                            width = 95;
+                            clearInterval(interval);
+                        }
+                        progressFill.style.width = width + '%';
+                    }, 200);
+                    progressBar.dataset.interval = interval;
+                } else {
+                    progressFill.style.width = '100%';
+                    setTimeout(() => {
+                        progressBar.style.display = 'none';
+                        progressFill.style.width = '0%';
+                        if (progressBar.dataset.interval) {
+                            clearInterval(progressBar.dataset.interval);
+                        }
+                    }, 500);
+                }
+            }
+
+            showAlert(message, type) {
+                // Create alert element
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = message;
+                
+                // Insert at top of container
+                const container = document.querySelector('.container');
+                container.insertBefore(alert, container.firstChild);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 5001);
+            }
+
+            clearAll() {
+                this.beforeImage = null;
+                this.afterImage = null;
+                
+                document.getElementById('beforePreview').innerHTML = '';
+                document.getElementById('afterPreview').innerHTML = '';
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('benchmarkSection').style.display = 'none';
+                
+                document.getElementById('analyzeBtn').disabled = true;
+                document.getElementById('benchmarkBtn').disabled = true;
+                
+                this.log('All data cleared', 'info');
+            }
+        }
+
+        // Initialize the application
+        const app = new ShelfCheckAI_Frontend();
+    </script>
+</body>
+</html>
